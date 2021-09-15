@@ -23,7 +23,7 @@ namespace WebAPICore.Controllers
         }
 
         [HttpGet]
-        public IActionResult  GetDepartment()
+        public JsonResult  GetDepartment()
         {
             string query = @"select * from dbo.Department";
             DataTable table = new DataTable();
@@ -45,7 +45,7 @@ namespace WebAPICore.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddDepartmet(Department department)
+        public JsonResult AddDepartment(Department department)
         {
             string query = @"Insert  into dbo.Department values('"+department.DepartmentName+@"')";
             DataTable table = new DataTable();
@@ -104,10 +104,33 @@ namespace WebAPICore.Controllers
                     table.Load(myReader);
 
                     myReader.Close();
-                    con.Close();
+                    con.Close();    
                 }
             }
             return new JsonResult("Department deleted");
+        }
+
+        [HttpGet,Route("GetAllDepartmentName")]
+        public IActionResult GetAllDepartmentName()
+        {
+            var query = @"Select DepartmentName from dbo.Department";
+            DataTable table = new DataTable();
+            string sql = _configuration.GetConnectionString("EmployeeAppCon");
+            SqlDataReader myReader;
+          using(SqlConnection con = new SqlConnection(sql))
+            {
+                con.Open();
+
+                using(SqlCommand command = new SqlCommand(query, con))
+                {
+                    myReader = command.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    con.Close();
+                }
+            }
+
+            return new JsonResult(table);
         }
     }
 }
